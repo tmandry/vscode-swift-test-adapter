@@ -1,7 +1,7 @@
 import { WorkspaceFolder, Event, EventEmitter, workspace, debug } from 'vscode';
 import { RetireEvent, TestAdapter, TestDecoration, TestEvent, TestLoadFinishedEvent, TestLoadStartedEvent, TestRunFinishedEvent, TestRunStartedEvent, TestSuiteEvent, TestSuiteInfo } from 'vscode-test-adapter-api';
 import { Log } from 'vscode-test-adapter-util';
-import { ChildProcess, exec, spawn } from 'child_process' 
+import { ChildProcess, exec, spawn } from 'child_process'
 import { TargetInfo } from './TestSuiteParse';
 import { v4 } from 'uuid'
 import { grep } from './fsUtils'
@@ -33,13 +33,10 @@ export class SwiftAdapter implements TestAdapter {
 
     private registerForEvents() {
         workspace.onDidSaveTextDocument(textDocument => {
-            if(textDocument.uri.path.indexOf(`${this.workspace.uri.path}/Tests`) != -1) {
-                if(workspace.getConfiguration(`${basePath}.reloadOnTextSave`)) {
-                    this.load()
-                }
-            } else if(textDocument.uri.path.indexOf(`${this.workspace.uri.path}/Sources`) != -1) {
-                this.retireEmitter.fire({})
+            if(workspace.getConfiguration(`${basePath}.reloadOnTextSave`)) {
+                this.load()
             }
+            this.retireEmitter.fire({})
         })
     }
 
@@ -122,7 +119,7 @@ export class SwiftAdapter implements TestAdapter {
                         const children = Object.keys(target.childrens).map(className => {
                             const classDef = target.childrens[className]
                             const regex = `class[\\s]+${className}[\\s]*:.*{`
-                            return grep(RegExp(regex), `${this.workspace.uri.fsPath}/Tests/${targetName}`, true, true)
+                            return grep(RegExp(regex), `${this.workspace.uri.fsPath}/Sources/${targetName}`, true, true)
                             .then(results => {
                                 const lines = results[0].split(':')
                                 const fileName = lines[0]
@@ -189,7 +186,7 @@ export class SwiftAdapter implements TestAdapter {
 
     private runImpl(test: string, testRunId: string): Promise<void> {
         let process: ChildProcess;
-        let args = ['test', '--enable-test-discovery', '--filter', test]
+        let args = ['test']
         args = args.concat(this.loadArgs())
         this.log.debug(args)
         process = spawn('swift',

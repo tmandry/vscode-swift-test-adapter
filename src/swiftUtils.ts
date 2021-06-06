@@ -107,7 +107,7 @@ const handleTestSuiteMessage = (testStatesEmitter: EventEmitter<TestRunStartedEv
 const handleTestCaseMessage = (testStatesEmitter: EventEmitter<TestRunStartedEvent | TestRunFinishedEvent | TestSuiteEvent | TestEvent>, testRunId: string, line: string, test: string, decorations?: TestDecoration[], currentOutpuLines?: string[]): boolean => {
     const name = getName(line)
     let event: TestEvent
-    let realName = test.indexOf('.') == -1 ? `${test}.${name.replace('.', '/')}` : test.indexOf('/') == -1 ? `${test.substring(0, test.indexOf('.'))}.${name.replace('.', '/')}` : test
+    let realName = test.indexOf('.') == -1 ? `${test}.${name.replace('.', '/').replace(' ', '/')}` : test.indexOf('/') == -1 ? `${test.substring(0, test.indexOf('.'))}.${name.replace('.', '/').replace(' ', '/')}` : test
     event = getEvent(testRunId, 'test', realName, line, decorations) as TestEvent
     event.message = currentOutpuLines?.join('\n')
     testStatesEmitter.fire(event)
